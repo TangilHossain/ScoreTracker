@@ -21,13 +21,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvTeamTwoScore: TextView
     private lateinit var tvResult: TextView
     private lateinit var tvSet: TextView
+    private lateinit var tvTeamOne: TextView
+    private lateinit var tvTeamTwo: TextView
     private val scoreViewModel: ScoreViewModel by viewModels()
+    private val nameViewModel: NameViewModel by viewModels()
 
     private lateinit var btnReset: Button
     private lateinit var imgTennisBall: ImageView
-
-    private var setTeamOne = 0
-    private var setTeamTwo = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +39,11 @@ class MainActivity : AppCompatActivity() {
         tvResult = findViewById(R.id.tvResult)
         btnReset = findViewById(R.id.btnReset)
         imgTennisBall = findViewById(R.id.imgTennisBall)
+        tvTeamOne = findViewById(R.id.tvTeamOne)
+        tvTeamTwo = findViewById(R.id.tvTeamTwo)
+
+        tvTeamOne.text = nameViewModel.name1.value!!.toString()
+        tvTeamTwo.text = nameViewModel.name2.value!!.toString()
 
 
         findViewById<Button>(R.id.btnTeamOneScore).setOnClickListener {
@@ -67,68 +72,38 @@ class MainActivity : AppCompatActivity() {
 
     }
     private fun checkSet(){
-        if(tvTeamOneScore.text.toString().toInt() > 9){
-            setIncrease(1)
-            scoreViewModel.bothZero()
-        }
-        else if(tvTeamTwoScore.text.toString().toInt() > 9){
-            setIncrease(2)
-            scoreViewModel.bothZero()
-        }
-    }
-    private fun setIncrease(score:Int){
-        if(score == 1){
+        if(scoreViewModel._t1score.value!! > 9){
             scoreViewModel.addSetToTeam1()
-//            animateBall(false)
+            scoreViewModel.bothZero()
         }
-        else{
+        else if(scoreViewModel._t2score.value!! > 9){
             scoreViewModel.addSetToTeam2()
-//            animateBall(true)
+            scoreViewModel.bothZero()
         }
-
-        val teamOneSetObserver = Observer<Int> { newValue ->
-            setTeamOne = newValue
-        }
-
-        val teamTwoSetObserver = Observer<Int> { newValue ->
-            setTeamTwo = newValue
-        }
-
-        scoreViewModel._t1set.observe(this, teamOneSetObserver)
-        scoreViewModel._t2set.observe(this, teamTwoSetObserver)
-//        setTeamOne = scoreViewModel._t1set.value!!
-//        setTeamTwo = scoreViewModel._t2set.value!!
-        tvSet.text = "$setTeamOne:$setTeamTwo"
+        tvSet.text = "${scoreViewModel._t1set.value}:${scoreViewModel._t2set.value}"
         checkWinner()
-
     }
+
     private fun checkWinner(){
-        if(setTeamOne > 2){
+        if(scoreViewModel._t1set.value!! > 2){
             tvResult.setText("Federer Wins")
-//            setResultVisible()
-//            setBtnVisible()
             btnReset.visibility = View.VISIBLE
         }
-        else if(setTeamTwo > 2){
+        else if(scoreViewModel._t2set.value!! > 2){
             tvResult.setText( "Nadal Wins" )
-//            setResultVisible()
-//            setBtnVisible()
             btnReset.visibility = View.VISIBLE
-
         }
     }
     private fun reset(){
         scoreViewModel.bothZero()
-//        setTeamOne = 0
-//        setTeamTwo = 0
         tvSet.text = "0:0"
         btnReset.visibility = View.INVISIBLE
         tvResult.visibility = View.INVISIBLE
     }
     private fun setResultVisible() {
-//        val animation = ObjectAnimator.ofFloat(tvResult, View.ALPHA, 0f, 1f)
-//        animation.duration = 1000
-//        animation.start()
+        val animation = ObjectAnimator.ofFloat(tvResult, View.ALPHA, 0f, 1f)
+        animation.duration = 1000
+        animation.start()
     }
     private fun animateBall(direction: Boolean) {
         imgTennisBall.visibility = View.VISIBLE
@@ -161,9 +136,9 @@ class MainActivity : AppCompatActivity() {
         alpha.start()
     }
     private fun setBtnVisible() {
-//        val animation = AlphaAnimation(0f, 1f)
-//        animation.duration = 1000
-//        btnReset.visibility = View.INVISIBLE
-//        btnReset.startAnimation(animation)
+        val animation = AlphaAnimation(0f, 1f)
+        animation.duration = 1000
+        btnReset.visibility = View.INVISIBLE
+        btnReset.startAnimation(animation)
     }
 }
